@@ -1,4 +1,6 @@
 use std::fs::{File, OpenOptions};
+use std::io::{Read, Seek, SeekFrom, Write};
+
 pub const PAGE_SIZE: usize = 4096;
 pub const CACHE_SIZE: usize = 100;
 
@@ -42,5 +44,35 @@ impl Pager {
             page_count
         })
     }
-    pub fn read() {}
+    pub fn read(&mut self,pgno: u64,mut buf: [u8; PAGE_SIZE]) -> Result<(), std::io::Error>{
+        if pgno == 0 || pgno > self.page_count {
+            println!("database file not found");
+        }
+        // set offset -> pagno - 1 * PAGE_SIZE
+        let offset = (pgno - 1) * PAGE_SIZE as u64;
+        self.file.seek(SeekFrom::Start(offset))?;
+        self.file.read(&mut buf)?;
+        Ok(())
+    }
+    // write a page to database
+    pub fn write(&mut self, page_number: u64, data:[u8; PAGE_SIZE]) -> Result<(), std::io::Error>{
+        let offset = (page_number - 1) * PAGE_SIZE as u64;
+        self.file.seek(SeekFrom::Start(offset))?;
+        self.file.write_all(&data)?;
+        self.file.sync_all()?;
+        Ok(())
+    }
+    pub fn flush(&mut self) -> Result<(), std::io::Error> {
+        self.file.flush()?;
+        Ok(())
+    }
+    pub fn close(&mut self) {
+        self.file.sync_all()?;
+    }
+}
+
+impl Drop for Pager {
+    fn drop(&mut self) {
+        let _ = self.flush();
+    }
 }
