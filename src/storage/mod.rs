@@ -1,3 +1,5 @@
+mod cache;
 mod pager;
 
-pub use pager::{PAGE_SIZE, PageHeader, Pager};
+pub use cache::PageCache;
+pub use pager::{PageHeader, Pager, CACHE_SIZE, PAGE_SIZE};

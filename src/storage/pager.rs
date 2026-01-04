@@ -2,6 +2,7 @@ use std::fs::{File, OpenOptions};
 use std::io::{Read, Seek, SeekFrom, Write};
 
 pub const PAGE_SIZE: usize = 4096;
+pub const MAX_PAGE: usize = 100;
 pub const CACHE_SIZE: usize = 100;
 
 #[derive(Debug, Clone)]
@@ -9,6 +10,7 @@ pub struct PageHeader {
     pgno: u64,
     flags: u64,
     data: [u8; PAGE_SIZE],
+    is_dirty: bool,
 }
 
 pub struct Pager {
@@ -18,12 +20,38 @@ pub struct Pager {
 }
 
 impl PageHeader {
-    pub fn new(&self) -> Self {
+    pub fn new(pgno: u64) -> Self {
         PageHeader {
-            pgno: self.pgno,
-            flags: self.flags,
-            data: self.data,
+            pgno,
+            flags: 0,
+            data: [0; PAGE_SIZE],
+            is_dirty: false,
         }
+    }
+
+    pub fn is_dirty(&self) -> bool {
+        self.is_dirty
+    }
+
+    pub fn mark_dirty(&mut self) {
+        self.is_dirty = true;
+    }
+
+    pub fn mark_clean(&mut self) {
+        self.is_dirty = false;
+    }
+
+    pub fn pgno(&self) -> u64 {
+        self.pgno
+    }
+
+    pub fn data(&self) -> &[u8; PAGE_SIZE] {
+        &self.data
+    }
+
+    pub fn data_mut(&mut self) -> &mut [u8; PAGE_SIZE] {
+        self.is_dirty = true;
+        &mut self.data
     }
 }
 
