@@ -8,7 +8,7 @@ pub const CACHE_SIZE: usize = 100;
 pub struct PageHeader {
     pgno: u64,
     flags: u64,
-    data: [u8; PAGE_SIZE]
+    data: [u8; PAGE_SIZE],
 }
 
 pub struct Pager {
@@ -17,7 +17,7 @@ pub struct Pager {
     page_count: u64,
 }
 
-impl PageHeader{
+impl PageHeader {
     pub fn new(&self) -> Self {
         PageHeader {
             pgno: self.pgno,
@@ -41,10 +41,10 @@ impl Pager {
         Ok(Self {
             file,
             page_size: file_size,
-            page_count
+            page_count,
         })
     }
-    pub fn read(&mut self,pgno: u64,mut buf: [u8; PAGE_SIZE]) -> Result<(), std::io::Error>{
+    pub fn read(&mut self, pgno: u64, mut buf: [u8; PAGE_SIZE]) -> Result<(), std::io::Error> {
         if pgno == 0 || pgno > self.page_count {
             println!("database file not found");
         }
@@ -55,7 +55,7 @@ impl Pager {
         Ok(())
     }
     // write a page to database
-    pub fn write(&mut self, page_number: u64, data:[u8; PAGE_SIZE]) -> Result<(), std::io::Error>{
+    pub fn write(&mut self, page_number: u64, data: [u8; PAGE_SIZE]) -> Result<(), std::io::Error> {
         let offset = (page_number - 1) * PAGE_SIZE as u64;
         self.file.seek(SeekFrom::Start(offset))?;
         self.file.write_all(&data)?;
@@ -66,8 +66,9 @@ impl Pager {
         self.file.flush()?;
         Ok(())
     }
-    pub fn close(&mut self) {
+    pub fn close(&mut self) -> Result<(), std::io::Error> {
         self.file.sync_all()?;
+        Ok(())
     }
 }
 

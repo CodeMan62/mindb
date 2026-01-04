@@ -1,3 +1,3 @@
 mod pager;
 
-pub use pager::{Pager, PageHeader, PAGE_SIZE};
+pub use pager::{PAGE_SIZE, PageHeader, Pager};
