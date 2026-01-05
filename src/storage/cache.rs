@@ -37,7 +37,6 @@ impl PageCache {
         None
     }
 
-
     pub fn put(&mut self, page_id: u64, page: PageHeader) -> Option<(u64, PageHeader)> {
         let mut evicted = None;
 
