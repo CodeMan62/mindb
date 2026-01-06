@@ -6,6 +6,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 pub const PAGE_SIZE: usize = 4096;
 pub const MAX_PAGE: usize = 100;
 pub const CACHE_SIZE: usize = 100;
+pub const HEADER_SIZE: usize = std::mem::size_of<PageHeader>();
 
 #[derive(Debug, Clone)]
 pub struct PageHeader {
@@ -14,6 +15,7 @@ pub struct PageHeader {
     data: [u8; PAGE_SIZE],
     is_dirty: bool,
     checksum_valid: bool,
+    next_free_page: u64,
 }
 
 pub struct Pager {
@@ -23,6 +25,7 @@ pub struct Pager {
     page_count: u64,
     lock: FileLock,
     verify_checksums: bool,
+    first_free_page: u64
 }
 
 impl PageHeader {
@@ -327,6 +330,33 @@ impl Pager {
         self.file.sync_all()?;
         self.lock.unlock()?;
         Ok(())
+    }
+    pub fn page_alloc(&mut self) {
+        if self.first_free_page != 0 {
+            let page_id = self.first_free_page;
+            let mut page: PageHeader = self.read_page(self, page_id);
+            self.first_free_page = page.next_free_page;
+            page = unsafe { std::mem::zeroed() };
+            page.pgno = page_id;
+        } else {
+            let page_id = self.page_count;
+            self.page_size += 1;
+            let mut page: PageHeader = PageHeader {
+                pgno: 0,
+                data: [0u8, PAGE_SIZE - HEADER_SIZE ],
+            }
+            page.pgno = page_id;
+
+            // Write the page
+            self.write_page(self, page_id, &page);
+        }
+    }
+    pub fn page_dealloc(&mut self, page_id: u64) {
+        let mut page: PageHeader = self.read_page(self, page_id);
+        page.next_free_page = self.first_free_page;
+        page.data = [0u8, PAGE_SIZE];
+        self.write_page(self, page_id, &page);
+        self.first_free_page = page_id;
     }
 }
 
