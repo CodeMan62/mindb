@@ -313,14 +313,6 @@ impl Pager {
         self.write_raw(page.pgno(), &raw)
     }
 
-    /// Write a page to database
-    ///
-    /// Requires exclusive lock. Returns error if only shared lock is held.
-    #[deprecated(note = "Use write_raw or write_page instead")]
-    pub fn write(&mut self, page_number: u64, data: [u8; PAGE_SIZE]) -> Result<(), std::io::Error> {
-        self.write_raw(page_number, &data)
-    }
-
     /// Get the current page count
     pub fn page_count(&self) -> u64 {
         self.page_count
