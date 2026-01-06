@@ -6,7 +6,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 pub const PAGE_SIZE: usize = 4096;
 pub const MAX_PAGE: usize = 100;
 pub const CACHE_SIZE: usize = 100;
-pub const HEADER_SIZE: usize = std::mem::size_of<PageHeader>();
+pub const HEADER_SIZE: usize = std::mem::size_of::<PageHeader>();
 
 #[derive(Debug, Clone)]
 pub struct PageHeader {
@@ -344,7 +344,7 @@ impl Pager {
             let mut page: PageHeader = PageHeader {
                 pgno: 0,
                 data: [0u8, PAGE_SIZE - HEADER_SIZE ],
-            }
+            };
             page.pgno = page_id;
 
             // Write the page
