@@ -1,5 +1,6 @@
 use std::io::{self, Write};
 mod tokenizer;
+mod parser;
 use tokenizer::Tokenizer;
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{
