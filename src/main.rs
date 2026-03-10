@@ -1,60 +1,43 @@
-use std::io::{self, Write};
-mod tokenizer;
+mod executor;
 mod parser;
 mod row;
 mod storage;
+mod tokenizer;
+mod execute;
 
-use row::{Row, Schema};
-use storage::table::Table;
+use executor::{print_result, Engine};
+use parser::parse;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let path = "users.db";
-    let schema = Schema::new(&["name", "email"]);
-    let mut table = Table::open(path, schema)?;
-
-    table.insert(&Row::new(1, &["alice", "alice@example.com"]))?;
-    table.insert(&Row::new(2, &["bob", "bob@example.com"]))?;
-    table.insert(&Row::new(3, &["carol", "carol@example.com"]))?;
-
-    println!("schema cols: {}", table.schema.col_count);
-    println!(
-        "columns: {}",
-        (0..table.schema.col_count)
-            .map(|i| table.schema.cols[i].name_str().to_string())
-            .collect::<Vec<_>>()
-            .join(", ")
-    );
-    println!("row_count: {}", table.row_count);
-
-    println!();
-    for row in table.scan()? {
-        let vals: Vec<&str> = (0..table.schema.col_count)
-            .map(|i| row.values[i].as_str())
-            .collect();
-        println!("id={} | {}", row.id, vals.join(" | "));
+fn run(engine: &mut Engine, sql: &str) {
+    println!("mindb> {}", sql);
+    match parse(sql) {
+        Ok(stmt) => match engine.execute(stmt) {
+            Ok(result) => print_result(result),
+            Err(e) => println!("Error: {}", e),
+        },
+        Err(e) => println!("Parse error: {}", e),
     }
-
-    Ok(())
+    println!();
 }
 
+fn main() {
+    let _ = std::fs::remove_file("users.db");
+    let mut engine = Engine::new();
 
-fn run_repl(){
-        print!("▖  ▖▄▖▖ ▖▄ ▄
-▛▖▞▌▐ ▛▖▌▌▌▙▘
-▌▝ ▌▟▖▌▝▌▙▘▙▘
-             \n");
-    loop {
-        print!("mindb> ");
-        let mut input = String::new();
-        io::stdout().flush();
-        io::stdin().read_line(&mut input).expect("h");
-        let trimmed_input = input.trim();
-        if trimmed_input == "exit" {
-            break;
-        }
-        if trimmed_input.is_empty(){
-            continue;
-        }
-        println!("{}", trimmed_input);
-    }
+    run(&mut engine, "CREATE TABLE users (name TEXT, score INT)");
+
+    run(&mut engine, "INSERT INTO users VALUES (1, alice, 980)");
+    run(&mut engine, "INSERT INTO users VALUES (2, bob, 870)");
+    run(&mut engine, "INSERT INTO users VALUES (3, carol, 990)");
+
+    run(&mut engine, "SELECT * FROM users");
+
+    run(&mut engine, "SELECT name FROM users WHERE id = 2");
+
+    run(&mut engine, "SELECT * FROM users WHERE score > 900");
+
+    // error cases — show proper error messages
+    run(&mut engine, "SELECT * FROM orders");
+    run(&mut engine, "INSERT INTO users VALUES (4, dave)");
+    run(&mut engine, "CREATE TABLE users (name TEXT, score INT)");
 }
