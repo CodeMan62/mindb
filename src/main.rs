@@ -1,6 +1,9 @@
 mod parser;
 mod storage;
 mod tokenizer;
+mod schema;
+mod row;
+use crate::row::Row;
 
 use parser::parse;
 
