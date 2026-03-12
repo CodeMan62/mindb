@@ -8,6 +8,7 @@ use std::{
 pub const PAGE_SIZE: usize = 4096;
 pub const CACHE_SIZE: usize = 16;
 
+#[derive(Debug)]
 pub struct PageHdr {
     pub pgno: u64,
     pub flags: u64,
@@ -15,11 +16,13 @@ pub struct PageHdr {
     pub is_dirty: bool,
 }
 
+#[derive(Debug)]
 pub struct PageCache {
     slots: HashMap<u64, PageHdr>,
     capacity: usize,
 }
 
+#[derive(Debug)]
 pub struct Pager {
     file: File,
     pub file_size: u64,

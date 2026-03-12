@@ -54,7 +54,7 @@ impl Schema {
         }
         buf
     }
-    pub fn from_bytes(&self,buf: &[u8; SCHEMA_SIZE]) -> Self {
+    pub fn from_bytes(buf: &[u8; SCHEMA_SIZE]) -> Self {
         let cols = std::array::from_fn(|i| {
             let off= 1 + i * (COL_NAME_LEN + 1);
             let mut name = [0u8; COL_NAME_LEN];

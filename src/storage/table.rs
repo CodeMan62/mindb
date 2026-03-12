@@ -2,11 +2,12 @@ use super::pager::{Pager, PAGE_SIZE};
 use crate::row::{Row, ROW_SIZE};
 use crate::schema::{Schema, SCHEMA_SIZE};
 
-pub META_PAGE: u64 = 0; 
-pub const ROW_PER_PAGE: usize = PAGE_SIZE / ROW_SIZE; // 15  
+pub const META_PAGE: u64 = 0; 
+pub const ROWS_PER_PAGE: usize = PAGE_SIZE / ROW_SIZE; // 15  
+#[derive(Debug)]
 pub struct Table {
     pub schema: Schema,
-    pub row_count: i64,
+    pub row_count: u64,
     pager: Pager,
 }
 
@@ -33,14 +34,14 @@ impl Table {
         })
     }
     pub fn insert(&mut self, row: &Row) -> Result<(), std::io::Error> {
-        let slot = self.row_count;
-        let page_no = 1 + (slot / ROW_PER_PAGE); 
-        let slot_in_page = slot % ROW_PER_PAGE;
+        let slot = self.row_count as usize;
+        let page_no = 1 + (slot / ROWS_PER_PAGE) as u64; 
+        let slot_in_page = slot % ROWS_PER_PAGE;
         let mut page = if page_no < self.pager.page_count {
             self.pager.read_page(page_no)?
         } else {
             [0u8; PAGE_SIZE]
-        }
+        };
         let off = slot_in_page * ROW_SIZE;
         page[off..off + ROW_SIZE].copy_from_slice(&row.to_bytes());
         self.pager.write_page(page_no,page)?;
@@ -66,7 +67,8 @@ impl Table {
         let mut page = [0u8; PAGE_SIZE];
         page[..8].copy_from_slice(&row_count.to_le_bytes());
         let sb = schema.to_bytes();
-        page[8..8 + SCHEMA_PAGE].copy_from_slice(&sb);
+        page[8..8 + SCHEMA_SIZE].copy_from_slice(&sb);
+        (page, row_count)
     }
 
     fn decode_meta(page: &[u8; PAGE_SIZE]) -> (Schema, u64) {
