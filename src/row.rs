@@ -4,8 +4,8 @@ pub const COL_VAL_LEN: usize = 16;
 pub const ROW_SIZE: usize = 8 +MAX_COL * COL_VAL_LEN;
 #[derive(Debug)]
 pub struct Row {
-    id: i64,
-    values: [String; MAX_COL]
+    pub id: i64,
+    pub values: [String; MAX_COL]
 }
 
 impl Row {

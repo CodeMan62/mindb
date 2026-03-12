@@ -26,8 +26,8 @@ impl Cols {
 
 #[derive(Debug, Clone)]
 pub struct  Schema {
-    num_cols: usize,
-    cols: [Cols; MAX_COL],
+    pub num_cols: usize,
+    pub cols: [Cols; MAX_COL],
 }
 
 impl Schema {
