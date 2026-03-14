@@ -74,17 +74,13 @@ fn main() {
 
     run(&mut engine, "CREATE TABLE users (name TEXT, score INT)");
 
-    //run(&mut engine, "INSERT INTO users VALUES (1, alice, 980)");
-    //run(&mut engine, "INSERT INTO users VALUES (2, bob, 870)");
-    //run(&mut engine, "INSERT INTO users VALUES (3, carol, 990)");
+    run(&mut engine, "INSERT INTO users VALUES (3, alice, 980)");
+    run(&mut engine, "INSERT INTO users VALUES (2, bob, 870)");
+    run(&mut engine, "INSERT INTO users VALUES (1, carol, 990)");
 
-    //run(&mut engine, "SELECT * FROM users");
+    run(&mut engine, "SELECT * FROM users");
 
-    //run(&mut engine, "SELECT name FROM users WHERE id = 2");
+    run(&mut engine, "SELECT name FROM users WHERE id = 2");
 
-    //run(&mut engine, "SELECT * FROM users WHERE score > 900");
-
-    //run(&mut engine, "SELECT * FROM orders");
-    //run(&mut engine, "INSERT INTO users VALUES (4, dave)");
-    //run(&mut engine, "CREATE TABLE users (name TEXT, score INT)");
+    run(&mut engine, "SELECT * FROM users WHERE score > 900");
 }
