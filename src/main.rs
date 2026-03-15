@@ -70,17 +70,16 @@ fn run(engine: &mut Engine, sql: &str) {
 }
 
 fn main() {
+    repl();
+}
+fn repl() {
+    println!("welcome to mindb!");
     let mut engine = Engine::new();
-
-    run(&mut engine, "CREATE TABLE users (name TEXT, score INT)");
-
-    run(&mut engine, "INSERT INTO users VALUES (3, alice, 980)");
-    run(&mut engine, "INSERT INTO users VALUES (2, bob, 870)");
-    run(&mut engine, "INSERT INTO users VALUES (1, carol, 990)");
-
-    run(&mut engine, "SELECT * FROM users");
-
-    run(&mut engine, "SELECT name FROM users WHERE id = 2");
-
-    run(&mut engine, "SELECT * FROM users WHERE score > 900");
+    loop {
+        let mut input = String::new();
+        std::io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
+        run(&mut engine, &input);
+    }
 }

@@ -100,9 +100,9 @@ impl<V: Clone> Btree<V> {
         self.root.search(key)
     }
     /// Returns all (key, value) pairs in ascending key order.
-    pub fn in_order(&self) -> Vec<(i64, V)> {
+    pub fn in_order(&self) -> Vec<i64> {
         let mut out = Vec::new();
-        self.root.collect_in_order(&mut out);
+        self.root.keys_in_order(&mut out);
         out
     }
     pub fn insert(&mut self, key: i64, value: V) {

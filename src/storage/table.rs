@@ -1,5 +1,5 @@
 use super::pager::{Pager, PAGE_SIZE};
-use crate::btree::Btree;
+use crate::storage::btree::Btree;
 use crate::row::{Row, ROW_SIZE};
 use crate::schema::{Schema, SCHEMA_SIZE};
 
@@ -93,7 +93,6 @@ impl Table {
         }
         Ok(rows)
     }
-    // Meta page: [row_count: 8][schema: SCHEMA_SIZE][0s...]
     fn encode_meta(schema: &Schema, row_count: u64) -> ([u8; PAGE_SIZE], u64) {
         let mut page = [0u8; PAGE_SIZE];
         page[..8].copy_from_slice(&row_count.to_le_bytes());
